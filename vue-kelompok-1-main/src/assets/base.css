@@ -1,0 +1,59 @@
+@tailwind utilities;
+
+@import "vue-advanced-cropper/dist/style.css";
+
+@layer base {
+  :root {
+    --color-orange: #FF6E01;
+    --color-orange-light: #FF9913;
+    --color-yellow: #FFCC00;
+    --color-black: #000000;
+    --color-brown: #E89249;
+    --color-orange-soft: #FFAD01;
+    --color-white-soft: #FBFDFD;
+  }
+}
+
+@layer utilities {
+  .bg-orange {
+    background-color: var(--color-orange);
+  }
+  .bg-orange-light {
+    background-color: var(--color-orange-light);
+  }
+  .bg-yellow {
+    background-color: var(--color-yellow);
+  }
+  .bg-brown {
+    background-color: var(--color-brown);
+  }
+  .bg-orange-soft {
+    background-color: var(--color-orange-soft);
+  }
+  .bg-white-soft {
+    background-color: var(--color-white-soft);
+  }
+
+  .text-orange {
+    color: var(--color-orange);
+  }
+  .text-orange-light {
+    color: var(--color-orange-light);
+  }
+  .text-brown {
+    color: var(--color-brown);
+  }
+  .text-white-soft {
+    color: var(--color-white-soft);
+  }
+  .text-black-base {
+    color: var(--color-black);
+  }
+
+  .border-orange {
+    border-color: var(--color-orange);
+  }
+  .border-orange-light {
+    border-color: var(--color-orange-light);
+  }
+}
