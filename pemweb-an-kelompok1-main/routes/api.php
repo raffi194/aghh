@@ -29,10 +29,10 @@ Route::get('/articles/{article}', [ArticleController::class, 'show']);
 
 // Endpoint yang butuh autentikasi
 // Group route yang memerlukan JWT
-Route::middleware('auth:api')->group(function () {
+Route::middleware('auth:api')->group(function () {  
     //User Profile
     Route::get('/profile', [UserController::class, 'getprofile']);
-    Route::put('/profile', [UserController::class, 'updateProfile']);
+    Route::post('/profile/update', [UserController::class, 'updateProfile']);
     // Route Rekomendasi Kalori
     Route::get('/recommendation/calories', [RecommendationController::class, 'getCalorieRecommendation']);
 

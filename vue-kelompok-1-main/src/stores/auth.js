@@ -23,16 +23,16 @@ export const useAuthStore = defineStore('auth', {
     async login(credentials) {
       this.loading = true
       this.error = null
+
       try {
-        // Gunakan instance Api
         const response = await Api.post('/login', credentials)
+
         this.token = response.data.access_token
+        this.user = response.data.user
         localStorage.setItem('token', this.token)
 
-        // Atur header Authorization untuk semua request selanjutnya
         Api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
 
-        await this.fetchProfile()
         return true
       } catch (err) {
         this.error = err.response?.data?.message || 'Login failed'
@@ -45,25 +45,41 @@ export const useAuthStore = defineStore('auth', {
     async register(data) {
       this.loading = true
       this.error = null
+
       try {
-        // Gunakan instance Api
         const response = await Api.post('/register', data)
+
         this.token = response.data.access_token
+        this.user = response.data.user
         localStorage.setItem('token', this.token)
 
-        // Atur header Authorization untuk semua request selanjutnya
         Api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
 
-        await this.fetchProfile()
         return true
       } catch (err) {
-        if (err.response?.data?.errors) {
-          // Asumsi error validasi (Laravel)
-          this.error = Object.values(err.response.data.errors)[0][0]
-        } else {
-          this.error = err.response?.data?.message || 'Registration failed'
-        }
+        this.error = err.response?.data?.message || 'Registration failed'
         return false
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async updateProfile(formData) {
+      this.loading = true
+      this.error = null
+
+      try {
+        const response = await Api.post('/profile/update', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+
+        // Update local user
+        await this.fetchProfile()
+
+        return true
+      } catch (err) {
+        this.error = err.response?.data?.message || 'Gagal update profil'
+        throw err
       } finally {
         this.loading = false
       }
@@ -72,11 +88,9 @@ export const useAuthStore = defineStore('auth', {
     async fetchProfile() {
       if (!this.token) return
       try {
-        // Gunakan instance Api
         const response = await Api.get('/profile')
         this.user = response.data
       } catch (err) {
-        // Jika token expired (401), paksa logout
         if (err.response?.status === 401) this.logout()
       }
     },
