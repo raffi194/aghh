@@ -13,11 +13,10 @@
       <router-link @click="closeMenu" to="/rekomendasi" class="hover:text-orange-light">Rekomendasi</router-link>
     </div>
 
+    <!-- MENU USER -->
     <div v-if="isAuthenticated" class="relative" ref="menuRef">
       <div class="cursor-pointer flex items-center gap-2 font-semibold">
-        
-        <!-- Foto User -->
-        <div @click="toggleMenu" class="cursor-pointer flex items-center gap-2 font-semibold">
+        <div @click="toggleMenu" class="flex items-center gap-2">
           <img
             :src="user.photo_url ? '/storage/' + user.photo_url : fallbackPhoto"
             class="w-10 h-10 rounded-full object-cover"
@@ -56,6 +55,7 @@
       </div>
     </div>
 
+    <!-- AUTH BUTTONS -->
     <div v-else>
       <button
         @click="handleLogin"
@@ -71,6 +71,13 @@
         Register
       </button>
     </div>
+
+    <!-- FEEDBACK MODAL -->
+    <FeedbackModal
+      v-if="showFeedbackModal"
+      @close="showFeedbackModal = false"
+      @submit="submitFeedback"
+    />
   </nav>
 </template>
 
@@ -78,6 +85,8 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import feedbackService from '@/services/feedback'
+import FeedbackModal from '@/components/FeedbackModal.vue'
 
 const authStore = useAuthStore()
 const user = computed(() => authStore.user || {})
@@ -86,24 +95,36 @@ const router = useRouter()
 
 const fallbackPhoto = "https://i.pravatar.cc/150?img=12"
 const showMenu = ref(false)
+const showFeedbackModal = ref(false)
+
 const menuRef = ref(null)
 
 const toggleMenu = () => (showMenu.value = !showMenu.value)
 const closeMenu = () => (showMenu.value = false)
 
-const openRiwayatKesehatan = () => {
-  closeMenu()
-  router.push('/riwayat-kesehatan')
-}
-
-const openProgressNutrisi = () => {
-  closeMenu()
-  router.push('/progress')
-}
+const openRiwayatKesehatan = () => { closeMenu(); router.push('/riwayat-kesehatan') }
+const openProgressNutrisi = () => { closeMenu(); router.push('/progress') }
 
 const openFeedback = () => {
   closeMenu()
-  alert("Feedback form disabled in this demo")
+
+  if (!isAuthenticated.value) {
+    router.push('/login')
+    return
+  }
+
+  showFeedbackModal.value = true
+}
+
+const submitFeedback = async (payload) => {
+  try {
+    await feedbackService.create(payload)
+    showFeedbackModal.value = false
+    alert("Terima kasih! Feedback berhasil dikirim.")
+  } catch (err) {
+    console.error("FEEDBACK ERROR:", err)
+    alert("Gagal mengirim feedback")
+  }
 }
 
 const handleLogoutFromMenu = async () => {
